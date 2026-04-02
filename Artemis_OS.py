@@ -52,21 +52,37 @@ def update_info_panel():
     # Повторюємо через 1 секунду
     root.after(1000, update_info_panel)
 
-# 1. НАЛАШТУВАННЯ ШЛЯХІВ (Правильно для EXE)
-if hasattr(sys, '_MEIPASS'):
-    BASE_DIR = sys._MEIPASS
+# 1. ГОЛОВНА ПАПКА ПРОГРАМИ
+# Це працює і для .py, і для .exe (якщо знадобиться в майбутньому)
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
 else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 1. НАЛАШТУВАННЯ ШЛЯХІВ
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(BASE_DIR, "lib", "site-packages"))
+# Додаємо шлях до бібліотек, якщо вони у тебе в папці lib
+lib_path = os.path.join(BASE_DIR, "lib", "site-packages")
+if os.path.exists(lib_path):
+    sys.path.append(lib_path)
 
+# 2. ФУНКЦІЯ ДЛЯ ОТРИМАННЯ РЕСУРСІВ (Іконки, Звуки)
+def get_path(category, filename):
+    """
+    category: "icons" або "sounds"
+    filename: назва файлу (напр. "alarm.mp3")
+    """
+    full_path = os.path.join(BASE_DIR, "assets", category, filename)
+    # Перевірка: якщо файлу немає, виводимо в консоль, щоб не "впасти"
+    if not os.path.exists(full_path):
+        print(f"⚠️ Файл не знайдено: {full_path}")
+    return full_path
+
+# 3. ПЕРЕВІРКА PILLOW
 try:
-    from PIL import Image, ImageTk # type: ignore
+    from PIL import Image, ImageTk
     PILLOW_INSTALLED = True
 except ImportError:
     PILLOW_INSTALLED = False
+    print("⚠️ Бібліотека Pillow не знайдена. Іконки можуть не відображатися.")
 
 # === ФУНКЦІЯ ОНОВЛЕННЯ (UPDATE SYSTEM) ===
 
@@ -133,7 +149,7 @@ def open_clock():
         label_clock.config(text=curr)
         label_date.config(text=strftime('%A, %d %B %Y'))
         if curr == entry_alarm.get():
-            alarm_path = os.path.join(BASE_DIR, "alarm.wav")
+            alarm_path = get_path("sounds", "alarm.wav")
             if os.path.exists(alarm_path):
                 winsound.PlaySound(alarm_path, winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
         label_clock.after(1000, update_clock)
@@ -577,20 +593,19 @@ def create_btn(parent, text, color, command, col, icon_name):
     frame.grid(row=1, column=col, padx=8, pady=10)
     
     icon_final = None
-    icon_path = os.path.join(BASE_DIR, icon_name)
+    icon_path = get_path("icons", icon_name)
     
-    # Подвійна перевірка шляху (як ми робили вчора)
-    if not os.path.exists(icon_path):
-        icon_path = os.path.join(os.path.dirname(sys.executable), icon_name)
-
     if PILLOW_INSTALLED:
         try:
             if os.path.exists(icon_path):
                 img = Image.open(icon_path).resize((80, 80), Image.Resampling.LANCZOS)
                 icon_final = ImageTk.PhotoImage(img)
-        except: pass
+            else:
+                print(f"⚠️ Іконка не знайдена: {icon_path}")
+        except Exception as e: 
+            print(f"❌ Помилка завантаження {icon_name}: {e}")
 
-    # Створюємо кнопку
+    # Створюємо саму кнопку
     if icon_final:
         b = tk.Button(frame, image=icon_final, command=command, bg="#2c3e50", bd=0, 
                       activebackground="#34495e", cursor="hand2")
@@ -599,78 +614,82 @@ def create_btn(parent, text, color, command, col, icon_name):
         b = tk.Button(frame, text=text, command=command, bg=color, fg="white", 
                       width=15, height=2, font=("Arial", 10, "bold"), cursor="hand2")
 
-    # ФУНКЦІЇ ПІДСВІТКИ (Hover Effect)
+    # --- ФУНКЦІЇ ПІДСВІТКИ (Hover Effect) ---
     def on_enter(e):
-        # Змінюємо колір фону кнопки та фрейму на трохи світліший
         if icon_final:
             b.config(bg="#34495e")
         else:
-            b.config(bg="#3498db") # Для текстових кнопок — синій акцент
+            b.config(bg="#3498db")
 
     def on_leave(e):
-        # Повертаємо стандартний темно-синій
         if icon_final:
             b.config(bg="#2c3e50")
         else:
             b.config(bg=color)
 
-    # Прив'язуємо події до кнопки
     b.bind("<Enter>", on_enter)
     b.bind("<Leave>", on_leave)
     
+    # Виводимо кнопку у фрейм
     b.pack()
+    
+    # Додаємо текстовий підпис під іконкою
     tk.Label(frame, text=text, bg="#2c3e50", fg="white", font=("Arial", 10)).pack(pady=5)
+    
+    # ТЕПЕР ПОВЕРТАЄМО КНОПКУ (Return має бути останнім!)
+    return b
 
 # === ГОЛОВНЕ ВІКНО ===
 root = tk.Tk()
-root.title("Artemis Hub v1.23.11")
+root.title("Artemis Hub v1.23.11.3") # Оновили назву тут
 
-# 1. Прибираємо верхню смужку Windows і рамки
+# 1. Прибираємо рамки
 root.overrideredirect(True)
 
-# 2. Отримуємо розміри твого монітора
+# 2-3. Розміри та розгортання
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
-
-# 3. Розгортаємо вікно на весь фізичний екран
 root.geometry(f"{screen_width}x{screen_height}+0+0")
 
-# 4. Встановлюємо колір фону
+# 4. Фон
 root.config(bg="#2c3e50")
 
 # Кнопка UPDATE
 update_btn = tk.Button(root, text="UPDATE OS", command=run_update_process, 
                        bg="#34495e", fg="#00FF00", font=("Arial", 9, "bold"), 
-                       relief="flat", width=12) # Задали фіксовану ширину
-
+                       relief="flat", width=12)
 update_btn.place(relx=1.0, x=-20, y=10, anchor="ne")
 
 # Кнопка ВИХІД
 exit_btn = tk.Button(root, text="ВИХІД", command=quit_system, 
                      bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), 
-                     relief="flat", width=12) # Така сама ширина
-
+                     relief="flat", width=12)
 exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
+# --- ВЕРСІЯ СИСТЕМИ (Додаємо цей блок тут) ---
+# relx=0.0 — лівий край, rely=1.0 — нижній край. x=20 та y=-20 роблять відступи.
+version_label = tk.Label(root, text="V. 1.23.11.3", font=("Arial", 10, "bold"), 
+                         fg="#5d6d7e", bg="#2c3e50")
+version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
+# ---------------------------------------------
+
 # Контейнер для часу та дати
-info_frame = tk.Frame(root, bg="#2c3e50") # Переконайся, що bg збігається з фоном меню
+info_frame = tk.Frame(root, bg="#2c3e50")
 info_frame.place(relx=1.0, rely=1.0, x=-20, y=-20, anchor="se")
 
-# Великий годинник
-time_label = tk.Label(info_frame, font=("Arial", 16, "bold"), 
-                      fg="white", bg="#2c3e50")
+# Годинник і дата всередині фрейму
+time_label = tk.Label(info_frame, font=("Arial", 16, "bold"), fg="white", bg="#2c3e50")
 time_label.pack(anchor="e")
-
-# Маленька дата під ним
-date_label = tk.Label(info_frame, font=("Arial", 10), 
-                      fg="#bdc3c7", bg="#2c3e50")
+date_label = tk.Label(info_frame, font=("Arial", 10), fg="#bdc3c7", bg="#2c3e50")
 date_label.pack(anchor="e")
 
-# Запуск циклу оновлення
+# Запуск годинника
 update_info_panel()
 
-tk.Label(root, text="Мій Центр Керування", font=("Arial", 20, "bold"), bg="#2c3e50", fg="white").grid(row=0, column=0, columnspan=6, pady=20)
+# Заголовок
+tk.Label(root, text="Мій Центр Керування", font=("Arial", 20, "bold"), bg="#2c3e50", fg="white").grid(row=0, column=0, columnspan=10, pady=20)
 
+# Кнопки
 create_btn(root, "Годинник", "#27ae60", open_clock, 0, "clock_icon.png")
 create_btn(root, "Перекладач", "#2980b9", open_translator, 1, "translator_icon.png")
 create_btn(root, "QR-код", "#8e44ad", open_qr, 2, "qr_icon.png")
