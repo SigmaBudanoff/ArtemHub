@@ -70,95 +70,42 @@ except ImportError:
 
 # === ФУНКЦІЯ ОНОВЛЕННЯ (UPDATE SYSTEM) ===
 
+import requests
+import os
+import sys
+from tkinter import messagebox
+
 def run_update_process():
-    import os, sys, subprocess, threading, time
-    from tkinter import messagebox
-
-    # 1. Визначаємо робочу папку
-    if getattr(sys, 'frozen', False):
-        exe_path = os.path.abspath(sys.executable)
-        exe_dir = os.path.dirname(exe_path)
-    else:
-        exe_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Якщо програма всередині dist, виходимо на рівень вище
-    if os.path.basename(exe_dir).lower() == "dist":
-        exe_dir = os.path.dirname(exe_dir)
-
-    os.chdir(exe_dir)
-    build_script = "Консоль.bat"
-    full_path = os.path.join(exe_dir, build_script)
-
-    if not os.path.exists(full_path):
-        messagebox.showerror("Шлях до батника", f"Файл не знайдено:\n{full_path}")
-        return
-
-    root.title("Artemis Hub [ ОНОВЛЕННЯ... ]")
-    root.update()
-    messagebox.showinfo("Artemis OS", "Зараз відкриється вікно збірки. НЕ ЗАКРИВАЙ ЙОГО!")
-
-    def wait_and_finish():
-        try:
-            # Запускаємо термінал збірки
-            os.startfile(full_path)
-            
-            # Шукаємо новий файл
-            new_exe = os.path.join(exe_dir, "dist", "Artemis_NEW.exe")
-            current_exe_name = os.path.basename(sys.executable)
-            
-            found = False
-            for _ in range(180): # Чекаємо до 3 хвилин
-                time.sleep(1)
-                if os.path.exists(new_exe):
-                    time.sleep(3) # Даємо час дозаписати файл на диск
-                    found = True
-                    break
-            
-            if found:
-                bat_path = os.path.join(exe_dir, "update_fix.bat")
-                
-                # Створюємо посилений батник для заміни файлів
-                with open(bat_path, "w", encoding="utf-8") as f:
-                    f.write(f"""@echo off
-chcp 65001 > nul
-echo [ Artemis OS Update System ]
-echo Очікування повного закриття програми...
-
-:retry_kill
-taskkill /f /im "{current_exe_name}" > nul 2>&1
-timeout /t 2 /nobreak > nul
-
-:retry_del
-del /f "{os.path.join(exe_dir, current_exe_name)}" > nul 2>&1
-
-if exist "{os.path.join(exe_dir, current_exe_name)}" (
-    echo Файл ще зайнятий системою... Пробую знову...
-    goto retry_kill
-)
-
-echo Встановлення нової версії...
-move /y "{new_exe}" "{os.path.join(exe_dir, current_exe_name)}"
-
-echo Очищення сміття...
-rd /s /q "{os.path.join(exe_dir, 'dist')}" 2>nul
-rd /s /q "{os.path.join(exe_dir, 'build')}" 2>nul
-del /q *.spec 2>nul
-
-echo Перезапуск...
-start "" "{os.path.join(exe_dir, current_exe_name)}"
-del "%~f0"
-""")
-                # Запускаємо батник і миттєво вбиваємо поточну програму
-                subprocess.Popen(["cmd", "/c", bat_path], shell=True)
-                os._exit(0)
-            else:
-                root.title("Artemis Hub")
-                messagebox.showerror("Error", "Збірка не вдалася або тривала занадто довго.")
+    # 1. Посилання на твій Raw-код
+    url = "https://raw.githubusercontent.com/SigmaBudanoff/ArtemHub/main/Artemis_OS.py"
+    
+    try:
+        # 2. Спроба завантажити новий код
+        response = requests.get(url, timeout=10)
         
-        except Exception as e:
-            messagebox.showerror("Критична помилка", f"{e}")
+        if response.status_code == 200:
+            new_code = response.text
+            
+            # 3. Перевіряємо, чи код не порожній (про всяк випадок)
+            if len(new_code) < 100:
+                messagebox.showwarning("Update", "Отриманий файл занадто малий. Оновлення скасовано.")
+                return
 
-    threading.Thread(target=wait_and_finish, daemon=True).start()
+            # 4. Записуємо оновлення у файл
+            # ВАЖЛИВО: назва файлу має збігатися з тією, що на диску
+            with open("Artemis_OS.py", "w", encoding="utf-8") as f:
+                f.write(new_code)
+            
+            messagebox.showinfo("Artemis OS", "Систему успішно оновлено!\n\nПрограма зараз закриється. Запустіть її знову через Консоль.bat")
+            
+            # 5. Закриваємо програму, щоб користувач міг її перезапустити
+            root.destroy() 
+            
+        else:
+            messagebox.showerror("Помилка", f"Сервер GitHub відповів помилкою: {response.status_code}")
+            
+    except Exception as e:
+        messagebox.showerror("Критична помилка", f"Не вдалося з'єднатися з сервером:\n{e}")
 
 # === ФУНКЦІЇ МОДУЛІВ ===
 
@@ -681,7 +628,7 @@ def create_btn(parent, text, color, command, col, icon_name):
 
 # === ГОЛОВНЕ ВІКНО ===
 root = tk.Tk()
-root.title("Artemis Hub v1.23.10")
+root.title("Artemis Hub v1.23.11")
 
 # 1. Прибираємо верхню смужку Windows і рамки
 root.overrideredirect(True)
