@@ -76,36 +76,31 @@ import sys
 from tkinter import messagebox
 
 def run_update_process():
-    # 1. Посилання на твій Raw-код
-    url = "https://raw.githubusercontent.com/SigmaBudanoff/ArtemHub/refs/heads/main/Artemis_OS.py"
+    # Найчистіше посилання без зайвих підпапок
+    url = "https://raw.githubusercontent.com/SigmaBudanoff/ArtemHub/main/Artemis_OS.py"
     
     try:
-        # 2. Спроба завантажити новий код
-        response = requests.get(url, timeout=10)
+        # Додаємо allow_redirects для надійності
+        response = requests.get(url, timeout=10, allow_redirects=True)
         
         if response.status_code == 200:
             new_code = response.text
             
-            # 3. Перевіряємо, чи код не порожній (про всяк випадок)
             if len(new_code) < 100:
-                messagebox.showwarning("Update", "Отриманий файл занадто малий. Оновлення скасовано.")
+                messagebox.showwarning("Update", "Файл порожній або занадто малий.")
                 return
 
-            # 4. Записуємо оновлення у файл
-            # ВАЖЛИВО: назва файлу має збігатися з тією, що на диску
             with open("Artemis_OS.py", "w", encoding="utf-8") as f:
                 f.write(new_code)
             
-            messagebox.showinfo("Artemis OS", "Систему успішно оновлено!\n\nПрограма зараз закриється. Запустіть її знову через Консоль.bat")
-            
-            # 5. Закриваємо програму, щоб користувач міг її перезапустити
-            root.destroy() 
-            
+            messagebox.showinfo("Artemis OS", "Оновлення успішне! Перезапустіть хаб.")
+            root.destroy()
         else:
-            messagebox.showerror("Помилка", f"Сервер GitHub відповів помилкою: {response.status_code}")
+            # Тепер ми побачимо точну помилку, якщо щось не так
+            messagebox.showerror("Помилка", f"Код помилки: {response.status_code}")
             
     except Exception as e:
-        messagebox.showerror("Критична помилка", f"Не вдалося з'єднатися з сервером:\n{e}")
+        messagebox.showerror("Помилка", f"Зв'язок розірвано: {e}")
 
 # === ФУНКЦІЇ МОДУЛІВ ===
 
