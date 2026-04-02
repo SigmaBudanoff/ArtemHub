@@ -77,7 +77,7 @@ from tkinter import messagebox
 
 def run_update_process():
     # 1. Посилання на твій Raw-код
-    url = "https://raw.githubusercontent.com/SigmaBudanoff/ArtemHub/main/Artemis_OS.py"
+    url = "https://raw.githubusercontent.com/SigmaBudanoff/ArtemHub/refs/heads/main/Artemis_OS.py"
     
     try:
         # 2. Спроба завантажити новий код
