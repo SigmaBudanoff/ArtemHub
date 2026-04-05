@@ -828,36 +828,41 @@ def open_paint():
 # === ГЕНЕРАЦІЯ КНОПОК ===
 def create_btn(parent, text, color, command, col, icon_name):
     frame = tk.Frame(parent, bg="#2c3e50")
-    frame.grid(row=1, column=col, padx=8, pady=10)
+    # Додав padx=15, щоб кнопки не злипалися в одну кучу
+    frame.grid(row=0, column=col, padx=15, pady=10) 
     
     icon_final = None
-    icon_path = os.path.join("icons", icon_name) # Використовуємо стандартний шлях
+    # Вказуємо шлях саме до папки assets
+    icon_path = os.path.join("assets", icon_name)
     
     if PILLOW_INSTALLED:
         try:
             if os.path.exists(icon_path):
                 img = Image.open(icon_path).resize((80, 80), Image.Resampling.LANCZOS)
                 icon_final = ImageTk.PhotoImage(img)
+            else:
+                print(f"⚠️ Файл не знайдено: {icon_path}")
         except Exception as e: 
-            print(f"Помилка іконки {icon_name}: {e}")
+            print(f"❌ Помилка іконки {icon_name}: {e}")
 
     # Створюємо кнопку
     if icon_final:
+        # Якщо іконка є — створюємо прозору кнопку з картинкою
         b = tk.Button(frame, image=icon_final, command=command, bg="#2c3e50", bd=0, 
                       activebackground="#34495e", cursor="hand2")
         b.image = icon_final
     else:
-        b = tk.Button(frame, text=text, command=command, bg=color, fg="white", 
-                      width=15, height=2, font=("Arial", 10, "bold"), cursor="hand2")
+        # Якщо іконки немає — малюємо кольорову кнопку (як зараз)
+        b = tk.Button(frame, text=text[:2], command=command, bg=color, fg="white", 
+                      width=4, height=2, font=("Arial", 12, "bold"), cursor="hand2")
 
-    # Ефекти наведення
     b.bind("<Enter>", lambda e: b.config(bg="#34495e" if icon_final else "#3498db"))
     b.bind("<Leave>", lambda e: b.config(bg="#2c3e50" if icon_final else color))
     
     b.pack()
     
-    # Підпис під кнопкою (це те, що ми будемо оновлювати при зміні мови)
-    lbl = tk.Label(frame, text=text, bg="#2c3e50", fg="white", font=("Arial", 10))
+    # Текстовий підпис під іконкою (завжди білий)
+    lbl = tk.Label(frame, text=text, bg="#2c3e50", fg="white", font=("Arial", 10, "bold"))
     lbl.pack(pady=5)
     
     return b, lbl
@@ -887,15 +892,15 @@ def change_language(event=None):
 
 # === ГОЛОВНЕ ВІКНО ===
 root = tk.Tk()
-root.title("Artemis Hub v1.23.12")
-root.overrideredirect(True) # Безрамковий режим
+root.title("Artemis Hub v1.24")
+root.overrideredirect(True) 
 
 sw, sh = root.winfo_screenwidth(), root.winfo_screenheight()
 root.geometry(f"{sw}x{sh}+0+0")
 root.config(bg="#2c3e50")
 
-# Системні кнопки (Верхній правий кут)
-update_btn = tk.Button(root, text="UPDATE OS", command=lambda: print("Updating..."), 
+# Кнопки вгорі (UPDATE та EXIT)
+update_btn = tk.Button(root, text="UPDATE OS", command=lambda: print("Check updates..."), 
                        bg="#34495e", fg="#00FF00", font=("Arial", 9, "bold"), relief="flat", width=12)
 update_btn.place(relx=1.0, x=-20, y=10, anchor="ne")
 
@@ -903,32 +908,31 @@ exit_btn = tk.Button(root, text="ВИХІД", command=root.quit,
                      bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), relief="flat", width=12)
 exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
-# Версія (Нижній лівий кут)
-version_label = tk.Label(root, text="V. 1.23.12", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
+# Нижня панель (Версія та Мова)
+version_label = tk.Label(root, text="V. 1.24.1", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
 version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
 
-# Вибір мови
 lang_combo = ttk.Combobox(root, values=["UA", "EN"], state="readonly", width=5)
 lang_combo.current(0)
 lang_combo.place(relx=0.0, rely=1.0, x=20, y=-55, anchor="sw")
 lang_combo.bind("<<ComboboxSelected>>", change_language)
 
-# Заголовок центру керування
-main_title_label = tk.Label(root, text="Мій Центр Керування", font=("Arial", 24, "bold"), bg="#2c3e50", fg="white")
-main_title_label.place(relx=0.5, y=100, anchor="center")
+# Заголовок (трохи вище центру)
+main_title_label = tk.Label(root, text="Мій Центр Керування", font=("Arial", 28, "bold"), bg="#2c3e50", fg="white")
+main_title_label.place(relx=0.5, rely=0.25, anchor="center")
 
-# Контейнер для кнопок (щоб вони були по центру екрана)
+# Контейнер для кнопок (піднімаємо на рівень 45% висоти екрану)
 btn_container = tk.Frame(root, bg="#2c3e50")
-btn_container.place(relx=0.5, rely=0.5, anchor="center")
+btn_container.place(relx=0.5, rely=0.45, anchor="center")
 
-# Створення кнопок модулів
-btn_clock = create_btn(btn_container, "Годинник", "#27ae60", open_clock, 0, "clock_icon.png")
-btn_trans = create_btn(btn_container, "Перекладач", "#2980b9", open_translator, 1, "translator_icon.png")
-btn_qr = create_btn(btn_container, "QR-код", "#8e44ad", open_qr, 2, "qr_icon.png")
+# Створення кнопок (тепер вони шукатимуть файли в assets/)
+btn_clock  = create_btn(btn_container, "Годинник", "#27ae60", open_clock, 0, "clock_icon.png")
+btn_trans  = create_btn(btn_container, "Перекладач", "#2980b9", open_translator, 1, "translator_icon.png")
+btn_qr     = create_btn(btn_container, "QR-код", "#8e44ad", open_qr, 2, "qr_icon.png")
 btn_weather = create_btn(btn_container, "Погода", "#f1c40f", open_weather, 3, "weather_icon.png")
-btn_calc = create_btn(btn_container, "Калькулятор", "#e67e22", open_calculator, 4, "calc_icon.png")
+btn_calc   = create_btn(btn_container, "Калькулятор", "#e67e22", open_calculator, 4, "calc_icon.png")
 btn_report = create_btn(btn_container, "Звіт", "#34495e", open_system_report, 5, "report_icon.png")
-btn_space = create_btn(btn_container, "Космос", "#1a1a2e", show_space_weather, 6, "cosmos_icon.png")
-btn_paint = create_btn(btn_container, "Пейнт", "#c0392b", open_paint, 7, "paint_icon.png")
+btn_space  = create_btn(btn_container, "Космос", "#1a1a2e", show_space_weather, 6, "cosmos_icon.png")
+btn_paint  = create_btn(btn_container, "Пейнт", "#c0392b", open_paint, 7, "paint_icon.png")
 
 root.mainloop()
