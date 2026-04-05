@@ -16,6 +16,151 @@ from io import BytesIO
 from PIL import Image, ImageTk # type: ignore
 from datetime import datetime
 
+LANG_DATA = {
+    "UA": {
+        "title": "Мій Центр Керування",
+        "module": "Модуль",
+        # Назви модулів
+        "clock": "Годинник", 
+        "translator": "Перекладач", 
+        "qr_gen": "QR-Генератор",
+        "weather": "Погода", 
+        "calc": "Калькулятор", 
+        "report": "Звіт системи",
+        "space_station": "Космічна станція", 
+        "paint": "Графічний редактор",
+        
+        # Кнопки та загальні команди
+        "exit": "ВИХІД", 
+        "update": "UPDATE OS",
+        "save_log_btn": "ЗБЕРЕГТИ ЛОГ", 
+        "save_photo_btn": "ЗБЕРЕГТИ ФОТО",
+        "save_png_btn": "ЗБЕРЕГТИ PNG",
+        "close": "ЗАКРИТИ", 
+        "close_shuttle": "ЗАКРИТИ ШЛЮЗ",
+        "clear_btn": "ОЧИСТИТИ", 
+        "show_btn": "ПОКАЗАТИ",
+        "gen_btn": "ЗГЕНЕРУВАТИ",
+        "translate_btn": "ПЕРЕКЛАСТИ",
+        "refresh_btn": "ОНОВИТИ",
+        
+        # Годинник та будильник
+        "set_alarm": "ВСТАНОВИТИ БУДИЛЬНИК (HH:MM:SS):",
+        "stop_sound": "ВИМКНУТИ ЗВУК",
+        
+        # Перекладач та QR
+        "enter_text": "Введіть текст:",
+        "empty_err": "Будь ласка, введіть текст або посилання!",
+        
+        # Погода
+        "city_label": "Місто:",
+        "weather_for": "ПРОГНОЗ ДЛЯ",
+        "enter_city_err": "Будь ласка, введіть назву міста.",
+        "no_internet": "Відсутнє підключення до інтернету.",
+        
+        # Система (Звіт)
+        "sys_info_head": "ІНФОРМАЦІЯ ПРО СИСТЕМУ",
+        "metrics_head": "МЕТРИКИ РЕАЛЬНОГО ЧАСУ",
+        "cpu_load": "Завантаження CPU",
+        "ram_use": "Використання RAM",
+        "disk_label": "Диск C:",
+        "disk_free": "вільно",
+        "log_saved": "Звіт збережено у файл system_log.txt",
+        
+        # Космос
+        "space_header": "КОСМІЧНА ПОГОДА",
+        "kp_quiet": "СПОКІЙНО",
+        "kp_active": "АКТИВНІСТЬ",
+        "mag_status": "Геомагнітний стан",
+        "g_index": "Поточний G-індекс",
+        "sat_offline": "Супутники офлайн",
+        "nasa_photo_day": "Фото дня від NASA",
+        "photo_saved": "Фото успішно збережено!",
+        
+        # Пейнт
+        "eraser": "ГУМКА",
+        "brush_label": "Товщина:",
+        "art_saved": "Шедевр збережено!",
+        
+        # Калькулятор
+        "invalid_expr": "Невірний вираз",
+        
+        # Повідомлення
+        "success": "Успіх",
+        "error": "Помилка",
+        "warning": "Увага",
+        "loading": "Завантаження...",
+        "load_err": "Помилка завантаження",
+        "unknown_err": "Сталася помилка"
+    },
+    "EN": {
+        "title": "My Control Center",
+        "module": "Module",
+        "clock": "Clock", 
+        "translator": "Translator", 
+        "qr_gen": "QR-Generator",
+        "weather": "Weather", 
+        "calc": "Calculator", 
+        "report": "System Report",
+        "space_station": "Space Station", 
+        "paint": "Graphics Editor",
+        
+        "exit": "EXIT", 
+        "update": "UPDATE OS",
+        "save_log_btn": "SAVE LOG FILE", 
+        "save_photo_btn": "SAVE PHOTO",
+        "save_png_btn": "SAVE AS PNG",
+        "close": "CLOSE", 
+        "close_shuttle": "CLOSE AIRLOCK",
+        "clear_btn": "CLEAR ALL", 
+        "show_btn": "SHOW",
+        "gen_btn": "GENERATE",
+        "translate_btn": "TRANSLATE",
+        "refresh_btn": "REFRESH",
+        
+        "set_alarm": "SET ALARM (HH:MM:SS):",
+        "stop_sound": "STOP SOUND",
+        
+        "enter_text": "Enter text:",
+        "empty_err": "Please enter text or a link!",
+        
+        "city_label": "City:",
+        "weather_for": "FORECAST FOR",
+        "enter_city_err": "Please enter a city name.",
+        "no_internet": "No internet connection.",
+        
+        "sys_info_head": "SYSTEM INFORMATION",
+        "metrics_head": "REAL-TIME METRICS",
+        "cpu_load": "CPU Usage",
+        "ram_use": "RAM Usage",
+        "disk_label": "Drive C:",
+        "disk_free": "free",
+        "log_saved": "Report saved to system_log.txt",
+        
+        "space_header": "SPACE WEATHER",
+        "kp_quiet": "QUIET",
+        "kp_active": "ACTIVE",
+        "mag_status": "Geomagnetic status",
+        "g_index": "Current G-index",
+        "sat_offline": "Satellites offline",
+        "nasa_photo_day": "NASA Photo of the Day",
+        "photo_saved": "Photo saved successfully!",
+        
+        "eraser": "ERASER",
+        "brush_label": "Brush size:",
+        "art_saved": "Masterpiece saved!",
+        
+        "invalid_expr": "Invalid expression",
+        
+        "success": "Success",
+        "error": "Error",
+        "warning": "Warning",
+        "loading": "Loading...",
+        "load_err": "Loading error",
+        "unknown_err": "An error occurred"
+    }
+}
+
 def center_window(window, width, height):
     # Отримуємо ширину та висоту екрана користувача
     screen_width = window.winfo_screenwidth()
@@ -32,13 +177,6 @@ def quit_system():
     # Можна додати запит "Ви впевнені?", але для швидкості зробимо прямий вихід
     root.destroy() # Закриваємо вікно
     sys.exit()     # Повністю зупиняємо процес Python
-
-def update_info_panel():
-    current_time = time.strftime('%H:%M:%S')
-    current_date = time.strftime('%d.%m.%Y')
-    time_label.config(text=current_time)
-    date_label.config(text=current_date)
-    root.after(1000, update_info_panel)
 
 def update_info_panel():
     # Отримуємо час і дату через strftime
@@ -121,13 +259,28 @@ def run_update_process():
 # === ФУНКЦІЇ МОДУЛІВ ===
 
 def open_clock():
+    # 1. Отримуємо мову (це має бути першим!)
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
+    # 2. Створюємо вікно
     clock_window = tk.Toplevel(root)
-    clock_window.title("Модуль: Годинник")
+    
+    # 3. Налаштовуємо заголовок (перевір, щоб була ОДНА дужка в кінці ключів)
+    clock_window.title(f"{d['module']}: {d['clock']}")
+    
+    # 4. Центруємо та колір
     center_window(clock_window, 450, 400)
     clock_window.config(bg="#2c3e50")
     
-    label_clock = tk.Label(clock_window, font=("Consolas", 60, "bold"), bg="#2c3e50", fg="white")
+    # 5. Створюємо головний напис годинника
+    label_clock = tk.Label(clock_window, 
+                           font=("Consolas", 60, "bold"), 
+                           bg="#2c3e50", 
+                           fg="white")
     label_clock.pack(pady=10)
+    
+    # Далі має йти твій код для дати, будильника тощо...
     
     # Дата: тепер теж на синьому фоні та з білим текстом
     label_date = tk.Label(clock_window, font=("Arial", 12), 
@@ -135,12 +288,14 @@ def open_clock():
     label_date.pack()
 
     # Пояснювальний напис для будильника
-    tk.Label(clock_window, text="ВСТАНОВИТИ БУДИЛЬНИК (HH:MM:SS):", 
-             font=("Arial", 8, "bold"), bg="#2c3e50", fg="#bdc3c7").pack(pady=(20, 0))
+    tk.Label(clock_window, 
+             text=d["set_alarm"], 
+             font=("Arial", 8, "bold"), 
+             bg="#2c3e50", 
+             fg="#bdc3c7").pack(pady=(20, 0))
 
-    # Поле вводу: зробимо його трохи світлішим синім, щоб виділялося
-    entry_alarm = tk.Entry(clock_window, font=("Consolas", 20), justify='center', 
-                           width=10, bg="#34495e", fg="#00FF00", bd=0)
+    # Поле вводу: зробимо його трохи світлішим
+    entry_alarm = tk.Entry(clock_window, font=("Arial", 12), width=10, bg="#34495e", fg="white", justify='center')
     entry_alarm.insert(0, "00:00:00")
     entry_alarm.pack(pady=10)
 
@@ -154,25 +309,43 @@ def open_clock():
                 winsound.PlaySound(alarm_path, winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
         label_clock.after(1000, update_clock)
 
-    tk.Button(clock_window, text="ВИМКНУТИ ЗВУК", command=lambda: winsound.PlaySound(None, winsound.SND_PURGE), bg="#cc0000", fg="white").pack(pady=10)
+    # Кнопка вимкнення звуку (використовуємо d["stop_sound"])
+    tk.Button(clock_window, 
+              text=d["stop_sound"], 
+              command=lambda: winsound.PlaySound(None, winsound.SND_PURGE), 
+              bg="#cc0000", 
+              fg="white").pack(pady=10)
+
+    # Виклик функції оновлення часу (обов'язково з нового рядка!)
     update_clock()
 
 def open_translator():
+    # 1. Отримуємо поточну мову
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
     trans_window = tk.Toplevel(root)
-    trans_window.title("Модуль: Перекладач")
-    center_window(trans_window, 600, 400)
+    # 2. Динамічний заголовок
+    trans_window.title(f"{d['module']}: {d['translator']}")
+    center_window(trans_window, 600, 450) # Трохи збільшив висоту для комфорту
     trans_window.config(bg="#2c3e50")
 
-    tk.Label(trans_window, text="Введіть текст:", bg="#2c3e50", fg="white", font=("Arial", 10, "bold")).pack(pady=(20, 5))
-    in_text = tk.Text(trans_window, height=5, width=40, bg="#34495e", fg="white", bd=0, padx=10, pady=10)
+    # 3. Напис "Введіть текст" (додай ключ "enter_text" у LANG_DATA)
+    tk.Label(trans_window, text=d["enter_text"], bg="#2c3e50", fg="white", 
+             font=("Arial", 10, "bold")).pack(pady=(20, 5))
+    
+    in_text = tk.Text(trans_window, height=5, width=40, bg="#34495e", fg="white", 
+                      bd=0, padx=10, pady=10)
     in_text.pack(padx=20)
     
+    # Вибір мови призначення
     lang_names = list(LANGUAGES.values())
     combo_dest = ttk.Combobox(trans_window, values=lang_names, state="readonly")
     combo_dest.set("ukrainian")
     combo_dest.pack(pady=10)
     
-    out_text = tk.Text(trans_window, height=5, width=40, bg="#34495e", fg="#bdc3c7", bd=0, padx=10, pady=10, state=tk.DISABLED)
+    out_text = tk.Text(trans_window, height=5, width=40, bg="#34495e", fg="#bdc3c7", 
+                       bd=0, padx=10, pady=10, state=tk.DISABLED)
 
     def translate():
         text = in_text.get("1.0", tk.END).strip()
@@ -184,74 +357,105 @@ def open_translator():
                 out_text.delete("1.0", tk.END)
                 out_text.insert(tk.END, res.text)
                 out_text.config(state=tk.DISABLED)
-            except Exception as e: messagebox.showerror("Помилка", str(e))
+            except Exception as e: 
+                # Помилка теж має бути мовною (ключ "error")
+                messagebox.showerror(d["error"], str(e))
 
-    tk.Button(trans_window, text="Перекласти", command=translate, bg="#27ae60", fg="white", 
-              font=("Arial", 10, "bold"), relief="flat", padx=20, pady=5).pack(pady=10)
+    # 4. Кнопка "Перекласти"
+    tk.Button(trans_window, text=d["translate_btn"], command=translate, bg="#27ae60", fg="white", font=("Arial", 10, "bold"), relief="flat", padx=20, pady=5).pack(pady=10)
+
     out_text.pack(padx=20)
-
+    
 def open_qr():
+    # 1. Отримуємо поточну мову та словник
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
     qr_window = tk.Toplevel(root)
-    qr_window.title("QR Генератор")
-    center_window(qr_window, 350, 450)
+    # 2. Використовуємо f-рядок для заголовка
+    qr_window.title(f"{d['module']}: {d['qr_gen']}")
+    center_window(qr_window, 350, 480) # Трохи збільшив висоту
     qr_window.config(bg="#2c3e50")
     
-    entry_url = tk.Entry(qr_window, width=25, font=("Arial", 12))
+    # Поле для введення тексту/посилання
+    entry_url = tk.Entry(qr_window, width=25, font=("Arial", 12), bg="#34495e", fg="white", insertbackground="white")
     entry_url.pack(pady=20)
+    
     label_img = tk.Label(qr_window, bg="#2c3e50")
     label_img.pack()
 
     def generate():
-        if entry_url.get():
-            img = qrcode.make(entry_url.get()).resize((200, 200))
+        content = entry_url.get().strip()
+        if content:
+            # Генерація QR-коду
+            img = qrcode.make(content).resize((200, 200))
             img_tk = ImageTk.PhotoImage(img)
-            label_img.config(image=img_tk); label_img.image = img_tk
+            label_img.config(image=img_tk)
+            label_img.image = img_tk
+        else:
+            # Повідомлення, якщо поле порожнє (ключ "empty_err")
+            messagebox.showwarning(d["error"], d["empty_err"])
     
-    tk.Button(qr_window, text="Згенерувати", command=generate, bg="#8e44ad", fg="white").pack(pady=10)
-
+    # 3. Кнопка "Згенерувати" (ключ "gen_btn")
+    tk.Button(qr_window, 
+              text=d["gen_btn"], 
+              command=generate, 
+              bg="#8e44ad", 
+              fg="white", 
+              font=("Arial", 10, "bold"),
+              padx=10).pack(pady=10)
+    
 def open_weather():
+    # 1. Отримуємо мову
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
     weather_win = tk.Toplevel(root)
-    weather_win.title("Прогноз на 7 днів")
-    center_window(weather_win, 600, 400)
+    # Динамічний заголовок
+    weather_win.title(f"{d['module']}: {d['weather']}")
+    center_window(weather_win, 650, 450)
     weather_win.config(bg="#34495e")
 
     ctrl_frame = tk.Frame(weather_win, bg="#34495e")
     ctrl_frame.pack(side=tk.TOP, fill=tk.X, pady=10)
 
-    tk.Label(ctrl_frame, text="Місто:", bg="#34495e", fg="white", font=("Arial", 10, "bold")).pack(side=tk.LEFT, padx=10)
+    # Напис "Місто:" зі словника
+    tk.Label(ctrl_frame, text=d["city_label"], bg="#34495e", fg="white", 
+             font=("Arial", 10, "bold")).pack(side=tk.LEFT, padx=10)
+    
     city_entry = tk.Entry(ctrl_frame, font=("Arial", 12), width=15)
     city_entry.insert(0, "Rivne")
     city_entry.pack(side=tk.LEFT, padx=5)
 
-    res_text = tk.Text(weather_win, font=("Consolas", 11), bg="#2c3e50", fg="#ecf0f1", bd=0, padx=15, pady=15)
+    res_text = tk.Text(weather_win, font=("Consolas", 11), bg="#2c3e50", 
+                       fg="#ecf0f1", bd=0, padx=15, pady=15)
     res_text.pack(side=tk.BOTTOM, pady=10, padx=20, expand=True, fill="both")
 
     def get_weather():
-        city = city_entry.get().strip() # Прибираємо випадкові пробіли
+        city = city_entry.get().strip()
         if not city:
-            messagebox.showwarning("Увага", "Будь ласка, введіть назву міста.")
+            messagebox.showwarning(d["warning"], d["enter_city_err"])
             return
 
         try:
-            # Додаємо timeout=5, щоб програма не "висла", якщо сайт не відповідає
+            # Запит до API
             response = requests.get(f"https://wttr.in/{city}?format=j1", timeout=5)
         
-            # Перевірка на успішність запиту
             if response.status_code != 200:
-                # Виводимо у вікно конкретний код помилки від сервера (напр. 404 або 429)
-                messagebox.showerror("Помилка сервера", f"Сервер повернув код: {response.status_code}\nМожливо, місто введено неправильно або ліміт запитів вичерпано.")
+                messagebox.showerror(d["error"], f"Server code: {response.status_code}")
                 return
 
             data = response.json()
-            output = f"ПРОГНОЗ ДЛЯ: {city.upper()}\n"
+            # Шапка прогнозу зі словника
+            output = f"{d['weather_for']}: {city.upper()}\n"
             output += "=" * 45 + "\n"
         
             for day in data['weather'][:7]:
                 date = day['date']
                 max_t = day['maxtempC']
                 min_t = day['mintempC']
-                hourly_info = day['hourly'][4]
-                desc = hourly_info['weatherDesc'][0]['value']
+                # Беремо опис погоди (він залишиться англійською від сервера)
+                desc = day['hourly'][4]['weatherDesc'][0]['value']
                 output += f"{date:<12} | {min_t:>3}°C...{max_t:>3}°C | {desc}\n"
         
             res_text.config(state=tk.NORMAL)
@@ -259,74 +463,99 @@ def open_weather():
             res_text.insert(tk.END, output)
             res_text.config(state=tk.DISABLED)
 
-        # Ловимо помилки мережі (без вискакуючих вікон, просто в консоль)
         except requests.exceptions.ConnectionError:
-            print("[WEATHER ERROR] Відсутнє підключення до інтернету.")
-            messagebox.showerror("Помилка", "Перевірте з'єднання з інтернетом.")
-    
-        except requests.exceptions.Timeout:
-            print("[WEATHER ERROR] Сайт wttr.in не відповів вчасно.")
-            messagebox.showerror("Помилка", "Час очікування відповіді вийшов. Спробуйте пізніше.")
-
-        # Ловимо все інше (наприклад, помилки в структурі JSON)
+            messagebox.showerror(d["error"], d["no_internet"])
         except Exception as e:
-            print(f"[WEATHER CRITICAL] {e}")
-            messagebox.showerror("Помилка", f"Сталася непередбачена помилка: {e}")
+            messagebox.showerror(d["error"], f"{d['unknown_err']}: {e}")
 
-    tk.Button(ctrl_frame, text="ПОКАЗАТИ", command=get_weather, bg="#f1c40f", fg="black").pack(side=tk.LEFT, padx=10)
+    # Кнопка "ПОКАЗАТИ"
+    tk.Button(ctrl_frame, text=d["show_btn"], command=get_weather, 
+              bg="#f1c40f", fg="black", font=("Arial", 9, "bold")).pack(side=tk.LEFT, padx=10)
+    
+    # Автоматичний запуск при відкритті
     get_weather()
-
+    
 def open_calculator():
+    # 1. Отримуємо мову та словник
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
     calc_win = tk.Toplevel(root)
-    calc_win.title("Калькулятор")
+    # 2. Динамічний заголовок
+    calc_win.title(f"{d['module']}: {d['calc']}")
     center_window(calc_win, 400, 500)
     calc_win.config(bg="#1a1a1a")
 
+    # Поле вводу
     entry = tk.Entry(calc_win, font=("Consolas", 25), justify='right', bg="#1a1a1a", fg="white", bd=0)
     entry.grid(row=0, column=0, columnspan=4, padx=20, pady=20, sticky="we")
 
-    def click(char): entry.insert(tk.END, char)
-    def clear(): entry.delete(0, tk.END)
+    def click(char): 
+        entry.insert(tk.END, char)
+        
+    def clear(): 
+        entry.delete(0, tk.END)
+        
     def calculate():
         try:
-            res = eval(entry.get().replace('×', '*').replace('÷', '/'))
-            entry.delete(0, tk.END); entry.insert(tk.END, str(res))
-        except: messagebox.showerror("Error", "Невірний вираз")
+            # Замінюємо візуальні символи на математичні оператори Python
+            expression = entry.get().replace('×', '*').replace('÷', '/')
+            res = eval(expression)
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, str(res))
+        except: 
+            # 3. Помилка тепер теж мовна (ключі "error" та "invalid_expr")
+            messagebox.showerror(d["error"], d["invalid_expr"])
     
+    # Список кнопок (текст, рядок, колонка, колір)
     btns = [
         ('7', 1, 0), ('8', 1, 1), ('9', 1, 2), ('÷', 1, 3, "#e67e22"),
         ('4', 2, 0), ('5', 2, 1), ('6', 2, 2), ('×', 2, 3, "#e67e22"),
         ('1', 3, 0), ('2', 3, 1), ('3', 3, 2), ('-', 3, 3, "#e67e22"),
         ('C', 4, 0, "#e74c3c"), ('0', 4, 1), ('=', 4, 2, "#27ae60"), ('+', 4, 3, "#e67e22")
     ]
+    
     for b in btns:
         text, r, c = b[0], b[1], b[2]
         bg = b[3] if len(b) > 3 else "#333"
-        cmd = calculate if text == '=' else clear if text == 'C' else lambda x=text: click(x)
+        
+        # Визначаємо команду для кнопки
+        if text == '=':
+            cmd = calculate
+        elif text == 'C':
+            cmd = clear
+        else:
+            cmd = lambda x=text: click(x)
+            
         tk.Button(calc_win, text=text, width=5, height=2, font=("Arial", 12, "bold"),
                   bg=bg, fg="white", relief="flat", command=cmd).grid(row=r, column=c, padx=5, pady=5)
-
+        
 def open_system_report():
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
     report_win = tk.Toplevel(root)
-    report_win.title("System Monitor") # Версію ти додаси сам, як домовлялися
+    # Динамічний заголовок
+    report_win.title(f"{d['module']}: {d['report']}")
     center_window(report_win, 480, 650)
     report_win.configure(bg="#2c3e50")
 
-    # --- 1. ОТРИМАННЯ КРАСИВОЇ НАЗВИ ПРОЦЕСОРА ---
+    # --- 1. ОТРИМАННЯ НАЗВИ ПРОЦЕСОРА ---
     try:
-        # Опитуємо Windows Management Instrumentation для отримання повної назви
         cpu_raw = os.popen("wmic cpu get name").read()
         clean_cpu = cpu_raw.replace("Name", "").strip()
-        if not clean_cpu: # Якщо WMIC раптом не спрацював
+        if not clean_cpu:
             clean_cpu = platform.processor()
     except:
         clean_cpu = platform.processor()
 
     # --- 2. СТАТИЧНА ІНФОРМАЦІЯ ---
-    header = tk.Label(report_win, text="ІНФОРМАЦІЯ ПРО СИСТЕМУ", font=("Arial", 12, "bold"), 
+    # Заголовок розділу зі словника
+    header = tk.Label(report_win, text=d["sys_info_head"], font=("Arial", 12, "bold"), 
                       bg="#2c3e50", fg="#1abc9c")
     header.pack(pady=(20, 10))
 
+    # Технічні назви зазвичай залишають англійською, але значення динамічні
     static_info = [
         f"DEVICE NAME  : {socket.gethostname()}",
         f"OS VERSION   : {platform.system()} {platform.release()}",
@@ -338,20 +567,22 @@ def open_system_report():
     ]
 
     for line in static_info:
-        tk.Label(report_win, text=line, font=("Consolas", 9), bg="#2c3e50", fg="#bdc3c7", anchor="w", justify="left").pack(fill="x", padx=40)
+        tk.Label(report_win, text=line, font=("Consolas", 9), bg="#2c3e50", 
+                 fg="#bdc3c7", anchor="w", justify="left").pack(fill="x", padx=40)
 
     tk.Label(report_win, text="-" * 45, bg="#2c3e50", fg="#34495e").pack()
 
-    # --- ДИНАМІЧНА ІНФОРМАЦІЯ (оновлюється кожні 2 сек) ---
-    tk.Label(report_win, text="МЕТРИКИ РЕАЛЬНОГО ЧАСУ", font=("Arial", 10, "bold"), bg="#2c3e50", fg="#f1c40f").pack(pady=5)
+    # --- 3. МЕТРИКИ РЕАЛЬНОГО ЧАСУ ---
+    tk.Label(report_win, text=d["metrics_head"], font=("Arial", 10, "bold"), 
+             bg="#2c3e50", fg="#f1c40f").pack(pady=5)
 
-    cpu_label = tk.Label(report_win, text="Завантаження CPU: ...", font=("Arial", 11), bg="#2c3e50", fg="white")
+    cpu_label = tk.Label(report_win, text="...", font=("Arial", 11), bg="#2c3e50", fg="white")
     cpu_label.pack(pady=5)
 
-    ram_label = tk.Label(report_win, text="Використання RAM: ...", font=("Arial", 11), bg="#2c3e50", fg="white")
+    ram_label = tk.Label(report_win, text="...", font=("Arial", 11), bg="#2c3e50", fg="white")
     ram_label.pack(pady=5)
     
-    storage_label = tk.Label(report_win, text="Диск C:: ...", font=("Arial", 11), bg="#2c3e50", fg="white")
+    storage_label = tk.Label(report_win, text="...", font=("Arial", 11), bg="#2c3e50", fg="white")
     storage_label.pack(pady=5)
 
     def update_stats():
@@ -362,11 +593,11 @@ def open_system_report():
         ram = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
 
-        cpu_label.config(text=f"Завантаження CPU: {cpu_usage}%")
-        ram_label.config(text=f"Використання RAM: {ram.percent}% ({ram.used // (1024**2)} MB)")
-        storage_label.config(text=f"Диск C: {disk.percent}% вільно")
+        # Використовуємо d["cpu_load"], d["ram_use"], d["disk_free"]
+        cpu_label.config(text=f"{d['cpu_load']}: {cpu_usage}%")
+        ram_label.config(text=f"{d['ram_use']}: {ram.percent}% ({ram.used // (1024**2)} MB)")
+        storage_label.config(text=f"{d['disk_label']}: {disk.percent}% {d['disk_free']}")
 
-        # Індикація перевантаження
         cpu_label.config(fg="#e74c3c" if cpu_usage > 80 else "white")
         ram_label.config(fg="#e74c3c" if ram.percent > 90 else "white")
 
@@ -374,70 +605,50 @@ def open_system_report():
 
     update_stats()
 
-    # Кнопки внизу
-    btn_frame = tk.Frame(report_win, bg="#2c3e50")
-    btn_frame.pack(pady=20)
-
-    # Твоя кнопка Save Log
-    # 1. ФУНКЦІЯ ЗАПИСУ (Має бути з відступом всередині open_system_report)
+    # --- 4. ФУНКЦІЯ ЗБЕРЕЖЕННЯ ---
     def save_log(cpu_name):
         try:
             from datetime import datetime
-            cpu_usage = psutil.cpu_percent()
-            ram = psutil.virtual_memory()
-            disk = psutil.disk_usage('/')
-                
             log_content = [
-                f"=== ARTEMIS SYSTEM LOG [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ===",
-                f"DEVICE NAME  : {socket.gethostname()}",
-                f"OS VERSION   : {platform.system()} {platform.release()}",
-                f"PROCESSOR    : {cpu_name}",
-                f"TOTAL RAM    : {round(ram.total / (1024**3), 2)} GB",
-                f"LOCAL IP     : {socket.gethostbyname(socket.gethostname())}",
-                f"CURRENT USER : {os.getlogin()}",
-                "-" * 45,
-                f"CPU USAGE    : {cpu_usage}%",
-                f"RAM USAGE    : {ram.percent}% ({ram.used // (1024**2)} MB)",
-                f"DISK C:      : {disk.percent}% free",
+                f"=== SYSTEM LOG [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] ===",
+                f"CPU: {cpu_name}",
+                f"RAM: {psutil.virtual_memory().percent}%",
+                f"DISK: {psutil.disk_usage('/').percent}%",
                 "==========================================\n"
             ]
-
-            log_path = os.path.join(os.path.dirname(sys.executable), "system_log.txt")
-
-            with open(log_path, "a", encoding="utf-8") as f:
+            # Зберігаємо поруч із програмою
+            with open("system_log.txt", "a", encoding="utf-8") as f:
                 f.write("\n".join(log_content))
-
-            messagebox.showinfo("Успіх", "Звіт збережено у файл system_log.txt")
+            messagebox.showinfo(d["success"], d["log_saved"])
         except Exception as e:
-            messagebox.showerror("Помилка", f"Не вдалося зберегти файл: {e}")
+            messagebox.showerror(d["error"], f"Error: {e}")
 
-   # 1. Створюємо ОДИН фрейм
+    # --- 5. КНОПКИ ---
     btn_frame = tk.Frame(report_win, bg="#2c3e50")
     btn_frame.pack(pady=20)
 
-    # 2. ОДНА кнопка закриття (зліва)
-    tk.Button(btn_frame, text="ЗАКРИТИ", command=report_win.destroy, 
+    # Кнопка закриття
+    tk.Button(btn_frame, text=d["close"], command=report_win.destroy, 
               bg="#e74c3c", fg="white", width=15).pack(side=tk.LEFT, padx=5)
     
-    # 3. ОДНА кнопка збереження (справа)
-    save_btn = tk.Button(btn_frame, text="SAVE LOG FILE", 
-                         command=lambda: save_log(clean_cpu), 
-                         bg="#34495e", fg="white", width=15)
-    save_btn.pack(side=tk.LEFT, padx=5)
+    # Кнопка збереження (текст кнопки теж зі словника)
+    tk.Button(btn_frame, text=d["save_log_btn"], 
+              command=lambda: save_log(clean_cpu), 
+              bg="#34495e", fg="white", width=15).pack(side=tk.LEFT, padx=5)
 
+# ПЕРЕКОНАЙСЯ, ЩО ПІСЛЯ ЦІЄЇ ФУНКЦІЇ ЙДЕ ПОРОЖНІЙ РЯДОК
 def show_space_weather():
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
     space_win = tk.Toplevel(root)
-    space_win.title("Artemis OS [ Space Weather Station ]")
-    center_window(space_win, 500, 750) # Трохи збільшив висоту для нових кнопок
+    # Динамічний заголовок
+    space_win.title(f"{d['module']}: {d['space_station']}")
+    center_window(space_win, 500, 750)
     space_win.configure(bg="#0a0a1a")
 
-    # Центрування вікна
-    space_win.update_idletasks()
-    x = (space_win.winfo_screenwidth() // 2) - (500 // 2)
-    y = (space_win.winfo_screenheight() // 2) - (750 // 2)
-    space_win.geometry(f"+{x}+{y}")
-
-    tk.Label(space_win, text="КОСМІЧНА ПОГОДА", font=("Arial", 16, "bold"), bg="#0a0a1a", fg="#00f2ff").pack(pady=10)
+    tk.Label(space_win, text=d["space_header"], font=("Arial", 16, "bold"), 
+             bg="#0a0a1a", fg="#00f2ff").pack(pady=10)
 
     # 1. МАГНІТНІ БУРІ
     kp_frame = tk.Frame(space_win, bg="#0a0a1a")
@@ -447,165 +658,190 @@ def show_space_weather():
         for widget in kp_frame.winfo_children():
             widget.destroy()
         try:
-            # Використовуємо основне джерело NOAA
             res = requests.get("https://services.swpc.noaa.gov/products/noaa-scales.json", timeout=5).json()
-            kp_val = res['0']['g']['value'] if '0' in res else "0"
-            status = "СПОКІЙНО" if int(kp_val) < 2 else "АКТИВНІСТЬ"
-            color = "#00ff00" if int(kp_val) < 2 else "#ffcc00"
-            tk.Label(kp_frame, text=f"Геомагнітний стан: {status}", font=("Arial", 12), bg="#0a0a1a", fg=color).pack()
-            tk.Label(kp_frame, text=f"Поточний G-індекс: {kp_val}/5", font=("Arial", 10), bg="#0a0a1a", fg="white").pack()
+            kp_val = int(res['0']['g']['value']) if '0' in res else 0
+            
+            # Визначаємо статус за словником
+            if kp_val < 2:
+                status = d["kp_quiet"]
+                color = "#00ff00"
+            else:
+                status = d["kp_active"]
+                color = "#ffcc00"
+                
+            tk.Label(kp_frame, text=f"{d['mag_status']}: {status}", font=("Arial", 12), bg="#0a0a1a", fg=color).pack()
+            tk.Label(kp_frame, text=f"{d['g_index']}: {kp_val}/5", font=("Arial", 10), bg="#0a0a1a", fg="white").pack()
         except:
-            tk.Label(kp_frame, text="⚠ Супутники офлайн", bg="#0a0a1a", fg="red").pack()
+            tk.Label(kp_frame, text=f"⚠ {d['sat_offline']}", bg="#0a0a1a", fg="red").pack()
 
-    tk.Button(space_win, text="🔄 ОНОВИТИ СТАН", command=fetch_kp, bg="#1a1a2e", fg="#00f2ff", font=("Arial", 8)).pack(pady=5)
+    # Кнопка оновлення
+    tk.Button(space_win, text=d["refresh_btn"], command=fetch_kp, bg="#1a1a2e", 
+              fg="#00f2ff", font=("Arial", 8)).pack(pady=5)
 
     # 2. ФОТО ДНЯ NASA
-    tk.Label(space_win, text="--- Фото дня від NASA ---", bg="#0a0a1a", fg="#555").pack(pady=10)
+    tk.Label(space_win, text=f"--- {d['nasa_photo_day']} ---", bg="#0a0a1a", fg="#555").pack(pady=10)
     img_container = tk.Label(space_win, bg="#0a0a1a")
     img_container.pack(pady=5)
-    title_label = tk.Label(space_win, text="Завантаження...", wraplength=400, justify="center", bg="#0a0a1a", fg="#00f2ff")
+    title_label = tk.Label(space_win, text=d["loading"], wraplength=400, justify="center", bg="#0a0a1a", fg="#00f2ff")
     title_label.pack()
 
-    # Змінні для збереження (об'явимо їх порожніми спочатку)
     current_img_data = {"url": "", "title": ""}
 
     def load_nasa():
         try:
-            # Використовуємо DEMO_KEY (краще потім замінити на свій)
             nasa_res = requests.get("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY", timeout=7).json()
+            media_type = nasa_res.get("media_type")
             url = nasa_res.get("url")
             title = nasa_res.get("title", "Space_Photo")
             
-            # Зберігаємо дані в словник для доступу кнопці збереження
             current_img_data["url"] = url
             current_img_data["title"] = title
 
-            response = requests.get(url, timeout=10)
-            img = Image.open(BytesIO(response.content))
-            img.thumbnail((440, 300))
-            photo = ImageTk.PhotoImage(img)
-
-            img_container.config(image=photo)
-            img_container.image = photo 
-            title_label.config(text=title)
+            if media_type == "image":
+                response = requests.get(url, timeout=10)
+                img = Image.open(BytesIO(response.content))
+                img.thumbnail((440, 300))
+                photo = ImageTk.PhotoImage(img)
+                img_container.config(image=photo)
+                img_container.image = photo 
+                title_label.config(text=title)
+            else:
+                # Якщо сьогодні відео замість фото
+                title_label.config(text=f"Today is a Video: {title}\n(Check NASA APOD website)")
         except Exception as e:
-            title_label.config(text=f"Помилка завантаження фото: {e}", fg="gray")
+            title_label.config(text=f"{d['load_err']}: {e}", fg="gray")
 
-    # 3. ФУНКЦІЯ ЗБЕРЕЖЕННЯ НА ДИСК
+    # 3. ФУНКЦІЯ ЗБЕРЕЖЕННЯ
     def save_nasa_photo():
         url = current_img_data["url"]
-        title = current_img_data["title"]
         if not url:
-            messagebox.showwarning("Увага", "Спочатку завантажте фото!")
+            messagebox.showwarning(d["warning"], d["load_first_err"])
             return
             
         try:
             from datetime import datetime
             img_res = requests.get(url, timeout=15)
-            # Очищуємо назву для файлу
-            clean_title = "".join(x for x in title if x.isalnum() or x in "._- ").strip()
+            clean_title = "".join(x for x in current_img_data["title"] if x.isalnum() or x in "._- ").strip()
             filename = f"NASA_{datetime.now().strftime('%Y-%m-%d')}_{clean_title[:15]}.jpg"
             
-            save_path = os.path.join(os.path.dirname(sys.executable), filename)
-            
-            with open(save_path, 'wb') as f:
+            with open(filename, 'wb') as f:
                 f.write(img_res.content)
-            messagebox.showinfo("NASA", f"Фото успішно збережено!\n{filename}")
+            messagebox.showinfo(d["success"], f"{d['photo_saved']}\n{filename}")
         except Exception as e:
-            messagebox.showerror("Помилка", f"Не вдалося зберегти: {e}")
+            messagebox.showerror(d["error"], f"{d['save_err']}: {e}")
 
-    # ПАНЕЛЬ КНОПОК ВНИЗУ
+    # ПАНЕЛЬ КНОПОК
     btn_frame = tk.Frame(space_win, bg="#0a0a1a")
     btn_frame.pack(side=tk.BOTTOM, pady=20)
 
     # Кнопка збереження
-    tk.Button(btn_frame, text="ЗБЕРЕГТИ ФОТО", command=save_nasa_photo, 
+    tk.Button(btn_frame, text=d["save_photo_btn"], command=save_nasa_photo, 
               bg="#27ae60", fg="white", font=("Arial", 10, "bold"), width=15).pack(side=tk.LEFT, padx=5)
 
-    # Кнопка закриття
-    tk.Button(btn_frame, text="ЗАКРИТИ ШЛЮЗ", command=space_win.destroy, 
+    # Кнопка закриття (використовуємо існуючий d["close"] або новий d["close_shuttle"])
+    tk.Button(btn_frame, text=d["close_shuttle"], command=space_win.destroy, 
               bg="#1a1a2e", fg="white", font=("Arial", 10), width=15).pack(side=tk.LEFT, padx=5)
 
-    # Початковий запуск
     fetch_kp()
     load_nasa()
 
 def open_paint():
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+
     paint_win = tk.Toplevel(root)
-    paint_win.title("Artemis Paint v1.23.3")
-    center_window(paint_win, 900, 700)
+    # Динамічний заголовок
+    paint_win.title(f"{d['module']}: {d['paint']}")
+    center_window(paint_win, 900, 750)
     paint_win.configure(bg="#2c3e50")
 
     # Змінні для малювання
     current_color = tk.StringVar(value="black")
     brush_size = tk.IntVar(value=3)
+    last_x, last_y = None, None # Для плавності ліній
 
     # Полотно
     canvas = tk.Canvas(paint_win, bg="white", width=850, height=500, cursor="pencil")
     canvas.pack(pady=10)
 
-    # Для збереження (PIL)
-    from PIL import ImageDraw # type: ignore
+    # Об'єкт для збереження картинки
+    from PIL import ImageDraw
     output_image = Image.new("RGB", (850, 500), "white")
     draw = ImageDraw.Draw(output_image)
 
     def paint(event):
+        nonlocal last_x, last_y
         size = brush_size.get()
         color = current_color.get()
-        x1, y1 = (event.x - size), (event.y - size)
-        x2, y2 = (event.x + size), (event.y + size)
-        # Малюємо на екрані
-        canvas.create_oval(x1, y1, x2, y2, fill=color, outline=color)
-        # Малюємо для збереження (лінія робить малювання плавнішим)
-        draw.line([x1, y1, x2, y2], fill=color, width=size * 2)
+        
+        if last_x and last_y:
+            # Малюємо лінію на екрані
+            canvas.create_line(last_x, last_y, event.x, event.y, 
+                               fill=color, width=size*2, capstyle=tk.ROUND, smooth=True)
+            # Малюємо лінію для файлу
+            draw.line([last_x, last_y, event.x, event.y], fill=color, width=size*2)
+            
+        last_x, last_y = event.x, event.y
+
+    def reset_coords(event):
+        nonlocal last_x, last_y
+        last_x, last_y = None, None
 
     def save_art():
-        file_path = os.path.join(BASE_DIR, "artemis_masterpiece.png")
-        output_image.save(file_path)
-        messagebox.showinfo("Paint", f"Збережено в:\n{file_path}")
+        try:
+            file_name = "artemis_masterpiece.png"
+            output_image.save(file_name)
+            messagebox.showinfo(d["success"], f"{d['art_saved']}\n{file_name}")
+        except Exception as e:
+            messagebox.showerror(d["error"], str(e))
 
-    # Панель інструментів (Frame)
+    # Панель інструментів
     toolbar = tk.Frame(paint_win, bg="#34495e", bd=2, relief="groove")
     toolbar.pack(fill="x", padx=25, pady=5)
 
-    # 1. Вибір кольору
-    colors = [("Black", "black"), ("Red", "#e74c3c"), ("Green", "#2ecc71"), ("Blue", "#3498db"), ("Yellow", "#f1c40f")]
-    for text, col in colors:
-        tk.Button(toolbar, bg=col, width=3, command=lambda c=col: current_color.set(c)).pack(side=tk.LEFT, padx=5, pady=5)
+    # 1. Кнопки кольорів
+    colors = ["black", "#e74c3c", "#2ecc71", "#3498db", "#f1c40f"]
+    for col in colors:
+        tk.Button(toolbar, bg=col, width=3, relief="flat",
+                  command=lambda c=col: current_color.set(c)).pack(side=tk.LEFT, padx=5, pady=5)
 
-    # 2. Гумка (просто малює білим)
-    tk.Button(toolbar, text="Гумка", bg="#ecf0f1", fg="black", command=lambda: current_color.set("white")).pack(side=tk.LEFT, padx=10)
+    # 2. Гумка (d["eraser"])
+    tk.Button(toolbar, text=d["eraser"], bg="#ecf0f1", fg="black", 
+              command=lambda: current_color.set("white")).pack(side=tk.LEFT, padx=10)
 
-    # 3. Слайдер товщини
-    tk.Label(toolbar, text="Товщина:", bg="#34495e", fg="white").pack(side=tk.LEFT, padx=5)
-    tk.Scale(toolbar, from_=1, to_=20, orient=tk.HORIZONTAL, variable=brush_size, bg="#34495e", fg="white", highlightthickness=0).pack(side=tk.LEFT, padx=5)
+    # 3. Слайдер товщини (d["brush_label"])
+    tk.Label(toolbar, text=d["brush_label"], bg="#34495e", fg="white").pack(side=tk.LEFT, padx=5)
+    tk.Scale(toolbar, from_=1, to_=20, orient=tk.HORIZONTAL, variable=brush_size, 
+             bg="#34495e", fg="white", highlightthickness=0).pack(side=tk.LEFT, padx=5)
 
-    # 4. Кнопки керування
-    tk.Button(toolbar, text="ОЧИСТИТИ", bg="#95a5a6", command=lambda: [canvas.delete("all"), draw.rectangle([0,0,850,500], fill="white")]).pack(side=tk.LEFT, padx=20)
-    tk.Button(toolbar, text="ЗБЕРЕГТИ PNG", bg="#27ae60", fg="white", font=("Arial", 9, "bold"), command=save_art).pack(side=tk.RIGHT, padx=10)
+    # 4. Керівні кнопки (d["clear_btn"], d["save_png_btn"])
+    tk.Button(toolbar, text=d["clear_btn"], bg="#95a5a6", 
+              command=lambda: [canvas.delete("all"), draw.rectangle([0,0,850,500], fill="white")]).pack(side=tk.LEFT, padx=20)
+    
+    tk.Button(toolbar, text=d["save_png_btn"], bg="#27ae60", fg="white", 
+              font=("Arial", 9, "bold"), command=save_art).pack(side=tk.RIGHT, padx=10)
 
+    # Прив'язка подій миші
     canvas.bind("<B1-Motion>", paint)
-
+    canvas.bind("<ButtonRelease-1>", reset_coords)
+    
 # === ГЕНЕРАЦІЯ КНОПОК ===
-
 def create_btn(parent, text, color, command, col, icon_name):
     frame = tk.Frame(parent, bg="#2c3e50")
     frame.grid(row=1, column=col, padx=8, pady=10)
     
     icon_final = None
-    icon_path = get_path("icons", icon_name)
+    icon_path = os.path.join("icons", icon_name) # Використовуємо стандартний шлях
     
     if PILLOW_INSTALLED:
         try:
             if os.path.exists(icon_path):
                 img = Image.open(icon_path).resize((80, 80), Image.Resampling.LANCZOS)
                 icon_final = ImageTk.PhotoImage(img)
-            else:
-                print(f"⚠️ Іконка не знайдена: {icon_path}")
         except Exception as e: 
-            print(f"❌ Помилка завантаження {icon_name}: {e}")
+            print(f"Помилка іконки {icon_name}: {e}")
 
-    # Створюємо саму кнопку
+    # Створюємо кнопку
     if icon_final:
         b = tk.Button(frame, image=icon_final, command=command, bg="#2c3e50", bd=0, 
                       activebackground="#34495e", cursor="hand2")
@@ -614,89 +850,85 @@ def create_btn(parent, text, color, command, col, icon_name):
         b = tk.Button(frame, text=text, command=command, bg=color, fg="white", 
                       width=15, height=2, font=("Arial", 10, "bold"), cursor="hand2")
 
-    # --- ФУНКЦІЇ ПІДСВІТКИ (Hover Effect) ---
-    def on_enter(e):
-        if icon_final:
-            b.config(bg="#34495e")
-        else:
-            b.config(bg="#3498db")
-
-    def on_leave(e):
-        if icon_final:
-            b.config(bg="#2c3e50")
-        else:
-            b.config(bg=color)
-
-    b.bind("<Enter>", on_enter)
-    b.bind("<Leave>", on_leave)
+    # Ефекти наведення
+    b.bind("<Enter>", lambda e: b.config(bg="#34495e" if icon_final else "#3498db"))
+    b.bind("<Leave>", lambda e: b.config(bg="#2c3e50" if icon_final else color))
     
-    # Виводимо кнопку у фрейм
     b.pack()
     
-    # Додаємо текстовий підпис під іконкою
-    tk.Label(frame, text=text, bg="#2c3e50", fg="white", font=("Arial", 10)).pack(pady=5)
+    # Підпис під кнопкою (це те, що ми будемо оновлювати при зміні мови)
+    lbl = tk.Label(frame, text=text, bg="#2c3e50", fg="white", font=("Arial", 10))
+    lbl.pack(pady=5)
     
-    # ТЕПЕР ПОВЕРТАЄМО КНОПКУ (Return має бути останнім!)
-    return b
+    return b, lbl
+
+# === ЗМІНА МОВИ ===
+def change_language(event=None):
+    global lang_combo, main_title_label, exit_btn, update_btn
+    global btn_clock, btn_trans, btn_qr, btn_weather, btn_calc, btn_report, btn_space, btn_paint
+    
+    lang = lang_combo.get()
+    d = LANG_DATA[lang]
+    
+    # Оновлюємо заголовок та системні кнопки
+    main_title_label.config(text=d["title"])
+    exit_btn.config(text=d["exit"])
+    update_btn.config(text=d["update"])
+   
+    # Оновлюємо підписи кнопок (використовуємо індекс [1], бо це Label)
+    btn_clock[1].config(text=d["clock"])
+    btn_trans[1].config(text=d["translator"])
+    btn_qr[1].config(text=d["qr_gen"])
+    btn_weather[1].config(text=d["weather"])
+    btn_calc[1].config(text=d["calc"])
+    btn_report[1].config(text=d["report"])
+    btn_space[1].config(text=d["space_station"])
+    btn_paint[1].config(text=d["paint"])
 
 # === ГОЛОВНЕ ВІКНО ===
 root = tk.Tk()
-root.title("Artemis Hub v1.23.11.3") # Оновили назву тут
+root.title("Artemis Hub v1.23.12")
+root.overrideredirect(True) # Безрамковий режим
 
-# 1. Прибираємо рамки
-root.overrideredirect(True)
-
-# 2-3. Розміри та розгортання
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-root.geometry(f"{screen_width}x{screen_height}+0+0")
-
-# 4. Фон
+sw, sh = root.winfo_screenwidth(), root.winfo_screenheight()
+root.geometry(f"{sw}x{sh}+0+0")
 root.config(bg="#2c3e50")
 
-# Кнопка UPDATE
-update_btn = tk.Button(root, text="UPDATE OS", command=run_update_process, 
-                       bg="#34495e", fg="#00FF00", font=("Arial", 9, "bold"), 
-                       relief="flat", width=12)
+# Системні кнопки (Верхній правий кут)
+update_btn = tk.Button(root, text="UPDATE OS", command=lambda: print("Updating..."), 
+                       bg="#34495e", fg="#00FF00", font=("Arial", 9, "bold"), relief="flat", width=12)
 update_btn.place(relx=1.0, x=-20, y=10, anchor="ne")
 
-# Кнопка ВИХІД
-exit_btn = tk.Button(root, text="ВИХІД", command=quit_system, 
-                     bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), 
-                     relief="flat", width=12)
+exit_btn = tk.Button(root, text="ВИХІД", command=root.quit, 
+                     bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), relief="flat", width=12)
 exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
-# --- ВЕРСІЯ СИСТЕМИ (Додаємо цей блок тут) ---
-# relx=0.0 — лівий край, rely=1.0 — нижній край. x=20 та y=-20 роблять відступи.
-version_label = tk.Label(root, text="V. 1.23.11.3", font=("Arial", 10, "bold"), 
-                         fg="#5d6d7e", bg="#2c3e50")
+# Версія (Нижній лівий кут)
+version_label = tk.Label(root, text="V. 1.23.12", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
 version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
-# ---------------------------------------------
 
-# Контейнер для часу та дати
-info_frame = tk.Frame(root, bg="#2c3e50")
-info_frame.place(relx=1.0, rely=1.0, x=-20, y=-20, anchor="se")
+# Вибір мови
+lang_combo = ttk.Combobox(root, values=["UA", "EN"], state="readonly", width=5)
+lang_combo.current(0)
+lang_combo.place(relx=0.0, rely=1.0, x=20, y=-55, anchor="sw")
+lang_combo.bind("<<ComboboxSelected>>", change_language)
 
-# Годинник і дата всередині фрейму
-time_label = tk.Label(info_frame, font=("Arial", 16, "bold"), fg="white", bg="#2c3e50")
-time_label.pack(anchor="e")
-date_label = tk.Label(info_frame, font=("Arial", 10), fg="#bdc3c7", bg="#2c3e50")
-date_label.pack(anchor="e")
+# Заголовок центру керування
+main_title_label = tk.Label(root, text="Мій Центр Керування", font=("Arial", 24, "bold"), bg="#2c3e50", fg="white")
+main_title_label.place(relx=0.5, y=100, anchor="center")
 
-# Запуск годинника
-update_info_panel()
+# Контейнер для кнопок (щоб вони були по центру екрана)
+btn_container = tk.Frame(root, bg="#2c3e50")
+btn_container.place(relx=0.5, rely=0.5, anchor="center")
 
-# Заголовок
-tk.Label(root, text="Мій Центр Керування", font=("Arial", 20, "bold"), bg="#2c3e50", fg="white").grid(row=0, column=0, columnspan=10, pady=20)
-
-# Кнопки
-create_btn(root, "Годинник", "#27ae60", open_clock, 0, "clock_icon.png")
-create_btn(root, "Перекладач", "#2980b9", open_translator, 1, "translator_icon.png")
-create_btn(root, "QR-код", "#8e44ad", open_qr, 2, "qr_icon.png")
-create_btn(root, "Погода", "#f1c40f", open_weather, 3, "weather_icon.png")
-create_btn(root, "Калькулятор", "#e67e22", open_calculator, 4, "calc_icon.png")
-create_btn(root, "Звіт", "#34495e", open_system_report, 5, "report_icon.png")
-create_btn(root, "Космос", "#1a1a2e", show_space_weather, 6, "cosmos_icon.png")
-create_btn(root, "Пейнт", "#1a1a2e", open_paint, 7, "paint_icon.png")
+# Створення кнопок модулів
+btn_clock = create_btn(btn_container, "Годинник", "#27ae60", open_clock, 0, "clock_icon.png")
+btn_trans = create_btn(btn_container, "Перекладач", "#2980b9", open_translator, 1, "translator_icon.png")
+btn_qr = create_btn(btn_container, "QR-код", "#8e44ad", open_qr, 2, "qr_icon.png")
+btn_weather = create_btn(btn_container, "Погода", "#f1c40f", open_weather, 3, "weather_icon.png")
+btn_calc = create_btn(btn_container, "Калькулятор", "#e67e22", open_calculator, 4, "calc_icon.png")
+btn_report = create_btn(btn_container, "Звіт", "#34495e", open_system_report, 5, "report_icon.png")
+btn_space = create_btn(btn_container, "Космос", "#1a1a2e", show_space_weather, 6, "cosmos_icon.png")
+btn_paint = create_btn(btn_container, "Пейнт", "#c0392b", open_paint, 7, "paint_icon.png")
 
 root.mainloop()
