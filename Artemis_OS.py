@@ -902,7 +902,7 @@ exit_btn = tk.Button(root, text="ВИХІД", command=root.quit,
 exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
 # Нижня панель (Версія та Мова)
-version_label = tk.Label(root, text="V. 1.24.2", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
+version_label = tk.Label(root, text="V. 1.24.2 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
 version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
 
 lang_combo = ttk.Combobox(root, values=["UA", "EN"], state="readonly", width=5)
