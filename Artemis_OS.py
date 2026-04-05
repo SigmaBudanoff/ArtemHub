@@ -893,13 +893,9 @@ root.geometry(f"{sw}x{sh}+0+0")
 root.config(bg="#2c3e50")
 
 # Кнопки вгорі (UPDATE та EXIT)
-update_btn = tk.Button(root, text="UPDATE OS", command=lambda: print("Check updates..."), 
+update_btn = tk.Button(root, text="UPDATE OS", command=run_update_process, 
                        bg="#34495e", fg="#00FF00", font=("Arial", 9, "bold"), relief="flat", width=12)
 update_btn.place(relx=1.0, x=-20, y=10, anchor="ne")
-
-exit_btn = tk.Button(root, text="ВИХІД", command=root.quit, 
-                     bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), relief="flat", width=12)
-exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
 # Нижня панель (Версія та Мова)
 version_label = tk.Label(root, text="V. 1.24.2 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
