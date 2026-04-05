@@ -256,9 +256,6 @@ def open_clock():
     
     # Далі твій код для годинника...
 
-    # 2. Створюємо вікно
-    clock_window = tk.Toplevel(root)
-    
     # 3. Налаштовуємо заголовок (перевір, щоб була ОДНА дужка в кінці ключів)
     clock_window.title(f"{d['module']}: {d['clock']}")
     
@@ -826,7 +823,7 @@ def create_btn(parent, text, color, command, col, icon_name):
     
     icon_final = None
     # Вказуємо шлях саме до папки assets
-    icon_path = os.path.join("assets", icon_name)
+    icon_path = os.path.join("assets", "icons", icon_name)
     
     if PILLOW_INSTALLED:
         try:
@@ -897,8 +894,14 @@ update_btn = tk.Button(root, text="UPDATE OS", command=run_update_process,
                        bg="#34495e", fg="#00FF00", font=("Arial", 9, "bold"), relief="flat", width=12)
 update_btn.place(relx=1.0, x=-20, y=10, anchor="ne")
 
+exit_btn = tk.Button(root, text="ВИХІД", command=root.quit,
+
+bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), relief="flat", width=12)
+
+exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
+
 # Нижня панель (Версія та Мова)
-version_label = tk.Label(root, text="V. 1.24.2 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
+version_label = tk.Label(root, text="V. 1.24.2.1 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
 version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
 
 lang_combo = ttk.Combobox(root, values=["UA", "EN"], state="readonly", width=5)
