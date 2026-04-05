@@ -232,12 +232,16 @@ def run_update_process():
             if len(new_code) < 100:
                 messagebox.showwarning("Update", "Файл занадто малий.")
                 return
+            
             with open("Artemis_OS.py", "w", encoding="utf-8") as f:
                 f.write(new_code)
-            messagebox.showinfo("Artemis OS", "Оновлення успішне!")
-            import os
-            os.startfile("Artemis_OS.py")
-            root.destroy()
+            
+            messagebox.showinfo("Artemis OS", "Оновлення успішне! Тепер запустіть ваш BAT-файл для оновлення системи.")
+            
+            # ВИДАЛИ ЦЕЙ РЯДОК: os.startfile("Artemis_OS.py") 
+            # Замість нього просто закриваємо вікно:
+            root.destroy() 
+            
         else:
             messagebox.showerror("Помилка", f"Статус: {response.status_code}")
     except Exception as e:
@@ -901,7 +905,7 @@ bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), relief="flat", width=12)
 exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
 # Нижня панель (Версія та Мова)
-version_label = tk.Label(root, text="V. 1.24.2.1 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
+version_label = tk.Label(root, text="V. 1.24.2.2 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
 version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
 
 lang_combo = ttk.Combobox(root, values=["UA", "EN"], state="readonly", width=5)
