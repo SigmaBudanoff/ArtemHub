@@ -223,45 +223,38 @@ except ImportError:
     print("⚠️ Бібліотека Pillow не знайдена. Іконки можуть не відображатися.")
 
 # === ФУНКЦІЯ ОНОВЛЕННЯ (UPDATE SYSTEM) ===
-
-import requests
-import os
-import sys
-from tkinter import messagebox
-
 def run_update_process():
-    # Найчистіше посилання без зайвих підпапок
     url = "https://raw.githubusercontent.com/SigmaBudanoff/ArtemHub/main/Artemis_OS.py"
-    
     try:
-        # Додаємо allow_redirects для надійності
         response = requests.get(url, timeout=10, allow_redirects=True)
-        
         if response.status_code == 200:
             new_code = response.text
-            
             if len(new_code) < 100:
-                messagebox.showwarning("Update", "Файл порожній або занадто малий.")
+                messagebox.showwarning("Update", "Файл занадто малий.")
                 return
-
             with open("Artemis_OS.py", "w", encoding="utf-8") as f:
                 f.write(new_code)
-            
-            messagebox.showinfo("Artemis OS", "Оновлення успішне! Перезапустіть хаб.")
+            messagebox.showinfo("Artemis OS", "Оновлення успішне!")
+            import os
+            os.startfile("Artemis_OS.py")
             root.destroy()
         else:
-            # Тепер ми побачимо точну помилку, якщо щось не так
-            messagebox.showerror("Помилка", f"Код помилки: {response.status_code}")
-            
+            messagebox.showerror("Помилка", f"Статус: {response.status_code}")
     except Exception as e:
         messagebox.showerror("Помилка", f"Зв'язок розірвано: {e}")
 
 # === ФУНКЦІЇ МОДУЛІВ ===
 
 def open_clock():
-    # 1. Отримуємо мову (це має бути першим!)
+    # 1. Отримуємо мову
     lang = lang_combo.get()
     d = LANG_DATA[lang]
+
+    # 2. Створюємо вікно
+    clock_window = tk.Toplevel(root)
+    clock_window.title(f"{d['module']}: {d['clock']}")
+    
+    # Далі твій код для годинника...
 
     # 2. Створюємо вікно
     clock_window = tk.Toplevel(root)
@@ -909,7 +902,7 @@ exit_btn = tk.Button(root, text="ВИХІД", command=root.quit,
 exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
 # Нижня панель (Версія та Мова)
-version_label = tk.Label(root, text="V. 1.24.1", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
+version_label = tk.Label(root, text="V. 1.24.2", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
 version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
 
 lang_combo = ttk.Combobox(root, values=["UA", "EN"], state="readonly", width=5)
