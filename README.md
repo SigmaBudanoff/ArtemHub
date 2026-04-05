@@ -18,7 +18,7 @@
 
 # 🚀 Інсталяція
 1. Клонуйте репозиторій:
-   `git clone https://github.com/SigmaBudanoff/ArtemisHub.git`
+   `git clone https://github.com/SigmaBudanoff/ArtemHub.git`
 2. Встановіть залежності:
    `pip install pillow requests googletrans==3.1.0a0 psutil`
 3. Запустіть головний файл:
