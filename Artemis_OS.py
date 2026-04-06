@@ -683,7 +683,7 @@ def show_space_weather():
 
     def load_nasa():
         try:
-            nasa_res = requests.get("https://api.nasa.gov/planetary/apod?api_key=ojjKnJA3h9wuCvta3dt2PDfEOuPtwXBWDG7qv35j", timeout=7).json()
+            nasa_res = requests.get("https://api.nasa.gov/planetary/apod?api_key=ojjKnJA3h9wuCvta3dt2PDfEOuPtwXBWDG7qv35j", timeout=20).json()
             media_type = nasa_res.get("media_type")
             url = nasa_res.get("url")
             title = nasa_res.get("title", "Space_Photo")
