@@ -683,7 +683,7 @@ def show_space_weather():
 
     def load_nasa():
         try:
-            nasa_res = requests.get("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY", timeout=7).json()
+            nasa_res = requests.get("https://api.nasa.gov/planetary/apod?api_key=ojjKnJA3h9wuCvta3dt2PDfEOuPtwXBWDG7qv35j", timeout=7).json()
             media_type = nasa_res.get("media_type")
             url = nasa_res.get("url")
             title = nasa_res.get("title", "Space_Photo")
@@ -905,7 +905,7 @@ bg="#34495e", fg="#ff0000", font=("Arial", 9, "bold"), relief="flat", width=12)
 exit_btn.place(relx=1.0, x=-20, y=45, anchor="ne")
 
 # Нижня панель (Версія та Мова)
-version_label = tk.Label(root, text="V. 1.24.2.2 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
+version_label = tk.Label(root, text="V. 1.24.2.3 ", font=("Arial", 10, "bold"), fg="#5d6d7e", bg="#2c3e50")
 version_label.place(relx=0.0, rely=1.0, x=20, y=-20, anchor="sw")
 
 lang_combo = ttk.Combobox(root, values=["UA", "EN"], state="readonly", width=5)
