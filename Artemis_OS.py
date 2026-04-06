@@ -886,7 +886,7 @@ def change_language(event=None):
 
 # === ГОЛОВНЕ ВІКНО ===
 root = tk.Tk()
-root.title("Artemis Hub v1.24 ")
+root.title("Artemis Hub v1.24")
 root.overrideredirect(True) 
 
 sw, sh = root.winfo_screenwidth(), root.winfo_screenheight()
